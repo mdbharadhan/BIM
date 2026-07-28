@@ -35,6 +35,32 @@ async def test_delete_floor(client: AsyncClient, created_floor: dict):
     assert response.status_code == 404
 
 
+async def test_delete_floor_not_found(client: AsyncClient):
+    response = await client.delete("/floors/999")
+    assert response.status_code == 404
+
+
+async def test_create_floor_missing_required_field_returns_422(
+    client: AsyncClient, created_building: dict
+):
+    response = await client.post(
+        "/floors", json={"floor_number": 1, "building_id": created_building["id"]}
+    )
+    assert response.status_code == 422
+
+
+async def test_create_floor_wrong_type_returns_422(client: AsyncClient, created_building: dict):
+    response = await client.post(
+        "/floors",
+        json={
+            "floor_name": "Ground",
+            "floor_number": "not-a-number",
+            "building_id": created_building["id"],
+        },
+    )
+    assert response.status_code == 422
+
+
 async def test_get_floors_by_building(
     client: AsyncClient, created_building: dict, created_floor: dict
 ):
