@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.building import BuildingCreate
 from app.schemas.floor import FloorCreate
 from app.schemas.room import RoomCreate
-from app.schemas.structural_element import StructuralElementCreate
+from app.schemas.structural_element import StructuralElementCreate, StructuralElementUpdate
 from app.services.building_service import BuildingService
 from app.services.floor_service import FloorService
 from app.services.room_service import RoomService
@@ -91,3 +91,66 @@ async def test_create_element_with_room_from_different_floor_raises_400(db_sessi
             )
         )
     assert exc_info.value.status_code == 400
+
+
+async def test_get_element_returns_element(db_session: AsyncSession):
+    floor = await _make_floor(db_session)
+    service = StructuralElementService(db_session)
+    created = await service.create_element(
+        StructuralElementCreate(element_name="Ext Wall", element_type="wall", floor_id=floor.id)
+    )
+
+    element = await service.get_element(created.id)
+
+    assert element.id == created.id
+    assert element.element_name == "Ext Wall"
+
+
+async def test_get_element_not_found_raises_404(db_session: AsyncSession):
+    service = StructuralElementService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await service.get_element(999)
+    assert exc_info.value.status_code == 404
+
+
+async def test_update_element_applies_partial_update(db_session: AsyncSession):
+    floor = await _make_floor(db_session)
+    service = StructuralElementService(db_session)
+    created = await service.create_element(
+        StructuralElementCreate(element_name="Ext Wall", element_type="wall", floor_id=floor.id)
+    )
+
+    updated = await service.update_element(
+        created.id, StructuralElementUpdate(material="concrete")
+    )
+
+    assert updated.material == "concrete"
+    assert updated.element_name == "Ext Wall"
+
+
+async def test_update_element_not_found_raises_404(db_session: AsyncSession):
+    service = StructuralElementService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await service.update_element(999, StructuralElementUpdate(material="concrete"))
+    assert exc_info.value.status_code == 404
+
+
+async def test_delete_element_removes_element(db_session: AsyncSession):
+    floor = await _make_floor(db_session)
+    service = StructuralElementService(db_session)
+    created = await service.create_element(
+        StructuralElementCreate(element_name="Ext Wall", element_type="wall", floor_id=floor.id)
+    )
+
+    await service.delete_element(created.id)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await service.get_element(created.id)
+    assert exc_info.value.status_code == 404
+
+
+async def test_delete_element_not_found_raises_404(db_session: AsyncSession):
+    service = StructuralElementService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await service.delete_element(999)
+    assert exc_info.value.status_code == 404

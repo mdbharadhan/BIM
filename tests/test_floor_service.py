@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.room_repository import RoomRepository
 from app.repositories.structural_element_repository import StructuralElementRepository
 from app.schemas.building import BuildingCreate
-from app.schemas.floor import FloorCreate
+from app.schemas.floor import FloorCreate, FloorUpdate
 from app.schemas.room import RoomCreate
 from app.schemas.structural_element import StructuralElementCreate
 from app.services.building_service import BuildingService
@@ -58,3 +58,24 @@ async def test_delete_floor_cascades_to_rooms_and_elements(db_session: AsyncSess
 
     assert await room_repo.get_by_id(room.id) is None
     assert await element_repo.get_by_id(element.id) is None
+
+
+async def test_get_floor_not_found_raises_404(db_session: AsyncSession):
+    floor_service = FloorService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await floor_service.get_floor(999)
+    assert exc_info.value.status_code == 404
+
+
+async def test_update_floor_not_found_raises_404(db_session: AsyncSession):
+    floor_service = FloorService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await floor_service.update_floor(999, FloorUpdate(floor_number=5))
+    assert exc_info.value.status_code == 404
+
+
+async def test_delete_floor_not_found_raises_404(db_session: AsyncSession):
+    floor_service = FloorService(db_session)
+    with pytest.raises(HTTPException) as exc_info:
+        await floor_service.delete_floor(999)
+    assert exc_info.value.status_code == 404

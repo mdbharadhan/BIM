@@ -40,3 +40,18 @@ async def test_delete_building(client: AsyncClient, created_building: dict):
 
     response = await client.get(f"/buildings/{created_building['id']}")
     assert response.status_code == 404
+
+
+async def test_delete_building_not_found(client: AsyncClient):
+    response = await client.delete("/buildings/999")
+    assert response.status_code == 404
+
+
+async def test_create_building_missing_name_returns_422(client: AsyncClient):
+    response = await client.post("/buildings", json={"address": "123 Main St"})
+    assert response.status_code == 422
+
+
+async def test_create_building_wrong_type_returns_422(client: AsyncClient):
+    response = await client.post("/buildings", json={"name": 12345})
+    assert response.status_code == 422

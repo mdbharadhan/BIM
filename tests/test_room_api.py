@@ -33,6 +33,26 @@ async def test_delete_room(client: AsyncClient, created_room: dict):
     assert response.status_code == 404
 
 
+async def test_delete_room_not_found(client: AsyncClient):
+    response = await client.delete("/rooms/999")
+    assert response.status_code == 404
+
+
+async def test_create_room_missing_required_field_returns_422(
+    client: AsyncClient, created_floor: dict
+):
+    response = await client.post("/rooms", json={"floor_id": created_floor["id"]})
+    assert response.status_code == 422
+
+
+async def test_create_room_wrong_type_returns_422(client: AsyncClient, created_floor: dict):
+    response = await client.post(
+        "/rooms",
+        json={"room_name": "Lobby", "floor_id": created_floor["id"], "occupancy": "a lot"},
+    )
+    assert response.status_code == 422
+
+
 async def test_get_rooms_by_floor(client: AsyncClient, created_floor: dict, created_room: dict):
     response = await client.get(f"/floors/{created_floor['id']}/rooms")
     assert response.status_code == 200

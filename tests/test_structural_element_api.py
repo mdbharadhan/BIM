@@ -69,3 +69,88 @@ async def test_get_elements_by_room(client: AsyncClient, created_floor: dict, cr
     body = response.json()
     assert len(body) == 1
     assert body[0]["id"] == created["id"]
+
+
+async def test_get_element(client: AsyncClient, created_floor: dict):
+    created = (
+        await client.post("/structural-elements", json=_element_payload(created_floor["id"]))
+    ).json()
+
+    response = await client.get(f"/structural-elements/{created['id']}")
+    assert response.status_code == 200
+    assert response.json()["id"] == created["id"]
+
+
+async def test_get_element_not_found_returns_404(client: AsyncClient):
+    response = await client.get("/structural-elements/999")
+    assert response.status_code == 404
+
+
+async def test_update_element(client: AsyncClient, created_floor: dict):
+    created = (
+        await client.post("/structural-elements", json=_element_payload(created_floor["id"]))
+    ).json()
+
+    response = await client.put(
+        f"/structural-elements/{created['id']}", json={"material": "concrete"}
+    )
+    assert response.status_code == 200
+    assert response.json()["material"] == "concrete"
+
+
+async def test_update_element_not_found_returns_404(client: AsyncClient):
+    response = await client.put("/structural-elements/999", json={"material": "concrete"})
+    assert response.status_code == 404
+
+
+async def test_delete_element(client: AsyncClient, created_floor: dict):
+    created = (
+        await client.post("/structural-elements", json=_element_payload(created_floor["id"]))
+    ).json()
+
+    response = await client.delete(f"/structural-elements/{created['id']}")
+    assert response.status_code == 204
+
+    response = await client.get(f"/structural-elements/{created['id']}")
+    assert response.status_code == 404
+
+
+async def test_delete_element_not_found_returns_404(client: AsyncClient):
+    response = await client.delete("/structural-elements/999")
+    assert response.status_code == 404
+
+
+async def test_create_element_missing_required_field_returns_422(
+    client: AsyncClient, created_floor: dict
+):
+    response = await client.post(
+        "/structural-elements", json={"element_type": "wall", "floor_id": created_floor["id"]}
+    )
+    assert response.status_code == 422
+
+
+async def test_create_element_invalid_element_type_returns_422(
+    client: AsyncClient, created_floor: dict
+):
+    response = await client.post(
+        "/structural-elements",
+        json={
+            "element_name": "Ext Wall",
+            "element_type": "not_a_type",
+            "floor_id": created_floor["id"],
+        },
+    )
+    assert response.status_code == 422
+
+
+async def test_create_element_wrong_type_returns_422(client: AsyncClient, created_floor: dict):
+    response = await client.post(
+        "/structural-elements",
+        json={
+            "element_name": "Ext Wall",
+            "element_type": "wall",
+            "floor_id": created_floor["id"],
+            "dim_width": "wide",
+        },
+    )
+    assert response.status_code == 422
