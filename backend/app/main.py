@@ -5,7 +5,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401  ensures all models register on Base.metadata
-from app.api import building, floor, room, structural_element
+from app.api import (
+    approval,
+    building,
+    checklist,
+    compliance,
+    document,
+    floor,
+    room,
+    structural_element,
+)
 from app.core.config import settings
 from app.db.base import Base, engine
 
@@ -35,6 +44,10 @@ app.include_router(building.router)
 app.include_router(floor.router)
 app.include_router(room.router)
 app.include_router(structural_element.router)
+app.include_router(checklist.router)
+app.include_router(approval.router)
+app.include_router(document.router)
+app.include_router(compliance.router)
 
 
 @app.get("/")
