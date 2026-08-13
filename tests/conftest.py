@@ -94,3 +94,87 @@ def room_payload(created_floor: dict) -> dict:
 async def created_room(client: AsyncClient, room_payload: dict) -> dict:
     response = await client.post("/rooms", json=room_payload)
     return response.json()
+
+
+@pytest.fixture
+def checklist_template_payload() -> dict:
+    return {
+        "name": "Concrete Pour Checklist",
+        "description": "Pre-pour verification",
+        "items": [
+            {"label": "Formwork inspected", "sequence": 0, "is_required": True},
+            {"label": "Rebar cover verified", "sequence": 1, "is_required": True},
+        ],
+    }
+
+
+@pytest.fixture
+async def created_checklist_template(
+    client: AsyncClient, checklist_template_payload: dict
+) -> dict:
+    response = await client.post("/checklist-templates", json=checklist_template_payload)
+    return response.json()
+
+
+@pytest.fixture
+def approval_payload(created_room: dict) -> dict:
+    return {"entity_type": "room", "entity_id": created_room["id"]}
+
+
+@pytest.fixture
+async def created_approval(client: AsyncClient, approval_payload: dict) -> dict:
+    response = await client.post("/approvals", json=approval_payload)
+    return response.json()
+
+
+@pytest.fixture
+def document_payload(created_room: dict) -> dict:
+    return {
+        "title": "Structural Drawing Rev A",
+        "category": "drawing",
+        "entity_type": "room",
+        "entity_id": created_room["id"],
+        "file_ref": "s3://bucket/drawing-rev-a.pdf",
+        "uploaded_by": "jane@example.com",
+    }
+
+
+@pytest.fixture
+async def created_document(client: AsyncClient, document_payload: dict) -> dict:
+    response = await client.post("/documents", json=document_payload)
+    return response.json()
+
+
+@pytest.fixture
+def compliance_standard_payload() -> dict:
+    return {"code": "IS 383", "name": "Specification for Coarse and Fine Aggregates"}
+
+
+@pytest.fixture
+async def created_compliance_standard(
+    client: AsyncClient, compliance_standard_payload: dict
+) -> dict:
+    response = await client.post("/compliance-standards", json=compliance_standard_payload)
+    return response.json()
+
+
+@pytest.fixture
+def compliance_rule_payload() -> dict:
+    return {
+        "name": "Silt content max",
+        "parameter_name": "silt_content_percent",
+        "operator": "lt",
+        "threshold_value": 5,
+        "unit": "%",
+    }
+
+
+@pytest.fixture
+async def created_compliance_rule(
+    client: AsyncClient, created_compliance_standard: dict, compliance_rule_payload: dict
+) -> dict:
+    response = await client.post(
+        f"/compliance-standards/{created_compliance_standard['id']}/rules",
+        json=compliance_rule_payload,
+    )
+    return response.json()
