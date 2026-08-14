@@ -20,6 +20,12 @@ class ComplianceStandardRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_code(self, code: str) -> ComplianceStandard | None:
+        result = await self.db.execute(
+            select(ComplianceStandard).where(ComplianceStandard.code == code)
+        )
+        return result.scalar_one_or_none()
+
     async def get_all(self) -> list[ComplianceStandard]:
         result = await self.db.execute(select(ComplianceStandard))
         return list(result.scalars().all())
