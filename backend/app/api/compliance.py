@@ -6,6 +6,10 @@ from app.models.compliance_check import ComplianceCheck
 from app.models.compliance_rule import ComplianceRule
 from app.models.compliance_standard import ComplianceStandard
 from app.schemas.compliance_check import ComplianceCheckCreate, ComplianceCheckResponse
+from app.schemas.compliance_evaluation import (
+    ComplianceEvaluationRequest,
+    ComplianceEvaluationResponse,
+)
 from app.schemas.compliance_rule import (
     ComplianceRuleCreate,
     ComplianceRuleResponse,
@@ -16,6 +20,7 @@ from app.schemas.compliance_standard import (
     ComplianceStandardResponse,
     ComplianceStandardUpdate,
 )
+from app.services.compliance_evaluation_service import ComplianceEvaluationService
 from app.services.compliance_service import ComplianceService
 
 router = APIRouter(tags=["Compliance"])
@@ -111,6 +116,15 @@ async def list_checks_by_rule(
     rule_id: int, db: AsyncSession = Depends(get_db)
 ) -> list[ComplianceCheck]:
     return await ComplianceService(db).get_checks_by_rule(rule_id)
+
+
+@router.post(
+    "/compliance-evaluations", response_model=ComplianceEvaluationResponse, status_code=201
+)
+async def evaluate_compliance(
+    data: ComplianceEvaluationRequest, db: AsyncSession = Depends(get_db)
+) -> ComplianceEvaluationResponse:
+    return await ComplianceEvaluationService(ComplianceService(db)).evaluate(data)
 
 
 @router.get(
