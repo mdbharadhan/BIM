@@ -12,6 +12,7 @@ from app.api import (
     checklist,
     checklist_completion,
     compliance,
+    design_review,
     document,
     floor,
     ncr,
@@ -54,6 +55,7 @@ app.include_router(document.router)
 app.include_router(compliance.router)
 app.include_router(ncr.router)
 app.include_router(audit.router)
+app.include_router(design_review.router)
 
 
 @app.get("/")
