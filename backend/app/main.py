@@ -9,9 +9,11 @@ from app.api import (
     approval,
     building,
     checklist,
+    checklist_completion,
     compliance,
     document,
     floor,
+    ncr,
     room,
     structural_element,
 )
@@ -45,9 +47,11 @@ app.include_router(floor.router)
 app.include_router(room.router)
 app.include_router(structural_element.router)
 app.include_router(checklist.router)
+app.include_router(checklist_completion.router)
 app.include_router(approval.router)
 app.include_router(document.router)
 app.include_router(compliance.router)
+app.include_router(ncr.router)
 
 
 @app.get("/")
