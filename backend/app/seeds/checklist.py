@@ -67,7 +67,63 @@ MATERIAL_DELIVERY_INSPECTION = TemplateSeed(
     ],
 )
 
-ALL_TEMPLATES: list[TemplateSeed] = [CONCRETE_POUR_INSPECTION, MATERIAL_DELIVERY_INSPECTION]
+# Precedes FINAL_HANDOVER_CHECKLIST in a building's lifecycle: this verifies a
+# system or building is ready to go live; handover verifies it's ready to
+# leave the contractor's hands.
+PRE_COMMISSIONING_CHECKLIST = TemplateSeed(
+    name="Pre-Commissioning Checklist",
+    description=(
+        "Readiness verification before a system or building goes live: installation "
+        "complete, functional tests passed, safety systems verified, and documentation "
+        "current."
+    ),
+    items=[
+        ItemSeed(label="Installation complete per approved drawings", sequence=0),
+        ItemSeed(
+            label="Functional performance tests completed", sequence=1, requires_evidence=True
+        ),
+        ItemSeed(
+            label="Safety systems tested (fire alarm, emergency lighting, egress)",
+            sequence=2,
+            requires_evidence=True,
+        ),
+        ItemSeed(label="Punch list items closed out", sequence=3),
+        ItemSeed(label="Equipment tagged and labeled", sequence=4),
+        ItemSeed(
+            label="As-built drawings updated to reflect installed condition",
+            sequence=5,
+            requires_evidence=True,
+        ),
+        ItemSeed(
+            label="Commissioning authority sign-off obtained", sequence=6, requires_evidence=True
+        ),
+    ],
+)
+
+FINAL_HANDOVER_CHECKLIST = TemplateSeed(
+    name="Final Handover Checklist",
+    description=(
+        "Client handover readiness: outstanding defects closed, documentation and "
+        "training delivered, and formal acceptance obtained."
+    ),
+    items=[
+        ItemSeed(label="Punch list / snag list fully closed", sequence=0),
+        ItemSeed(label="As-built documents submitted", sequence=1, requires_evidence=True),
+        ItemSeed(label="O&M manuals submitted", sequence=2, requires_evidence=True),
+        ItemSeed(label="Warranty documents submitted", sequence=3, requires_evidence=True),
+        ItemSeed(label="Client O&M staff training completed", sequence=4, requires_evidence=True),
+        ItemSeed(label="Spare parts and tools handed over", sequence=5),
+        ItemSeed(label="Keys and access credentials transferred", sequence=6),
+        ItemSeed(label="Client acceptance sign-off obtained", sequence=7, requires_evidence=True),
+    ],
+)
+
+ALL_TEMPLATES: list[TemplateSeed] = [
+    CONCRETE_POUR_INSPECTION,
+    MATERIAL_DELIVERY_INSPECTION,
+    PRE_COMMISSIONING_CHECKLIST,
+    FINAL_HANDOVER_CHECKLIST,
+]
 
 
 async def seed_template(db: AsyncSession, seed: TemplateSeed) -> ChecklistTemplate:
