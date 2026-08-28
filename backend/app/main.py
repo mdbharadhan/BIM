@@ -14,6 +14,7 @@ from app.api import (
     compliance,
     design_review,
     document,
+    enterprise_qms,
     floor,
     ncr,
     room,
@@ -56,6 +57,7 @@ app.include_router(compliance.router)
 app.include_router(ncr.router)
 app.include_router(audit.router)
 app.include_router(design_review.router)
+app.include_router(enterprise_qms.router)
 
 
 @app.get("/")
