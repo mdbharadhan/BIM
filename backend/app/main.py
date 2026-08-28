@@ -7,11 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401  ensures all models register on Base.metadata
 from app.api import (
     approval,
+    audit,
     building,
     checklist,
     checklist_completion,
     compliance,
+    design_review,
     document,
+    enterprise_qms,
     floor,
     ncr,
     room,
@@ -52,6 +55,9 @@ app.include_router(approval.router)
 app.include_router(document.router)
 app.include_router(compliance.router)
 app.include_router(ncr.router)
+app.include_router(audit.router)
+app.include_router(design_review.router)
+app.include_router(enterprise_qms.router)
 
 
 @app.get("/")
