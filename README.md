@@ -9,13 +9,21 @@ Documentation & Enterprise QMS).
 cd backend
 pip install -r requirements.txt # or: fastapi uvicorn sqlalchemy aiosqlite pydantic-settings
 uvicorn app.main:app --reload --port 8000
+
+
 Or with `uv`:
+
 uv sync
 PYTHONPATH=backend uv run uvicorn app.main:app --reload --port 8000
 
+
 Run tests:
+
 PYTHONPATH=backend uv run pytest
+
+
 ## frontend/ (Next.js 16, TypeScript, Tailwind v4)
+
 cd frontend
 npm install
 npm run dev
